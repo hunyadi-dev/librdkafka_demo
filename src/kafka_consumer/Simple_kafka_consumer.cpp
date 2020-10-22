@@ -16,3 +16,6 @@
  */
 
 #include "kafka_consumer/Simple_kafka_consumer.h"
+
+const std::size_t Simple_kafka_consumer::BATCH_NUM_MESSAGES{ 10000 };
+const int Simple_kafka_consumer::COMMUNICATIONS_TIMEOUT_MS{ 2000 };
