@@ -15,4 +15,29 @@
  * limitations under the License.
  */
 
-#include "kafka_producer/Simple_kafka_producer.h"
+#pragma once
+
+#include <chrono>
+#include <iostream>
+#include <memory>
+#include <string>
+
+#include "rd_kafka_utils/rd_kafka_utils.h"
+
+class Simple_kafka_producer {
+ public:
+  static const std::string CANCEL_MESSAGE;
+
+  explicit Simple_kafka_producer(const std::string& kafka_brokers, const std::string& topic, const bool transactional);
+
+  void publish_messages_to_topic(const std::vector<std::string>& messages_on_topic) {
+  }
+
+ private:
+  static const std::chrono::milliseconds TRANSACTIONS_TIMEOUT_MS;
+
+  void publish_message(const std::string& message);
+
+  std::unique_ptr<rd_kafka_t, rd_kafka_utils::rd_kafka_producer_deleter> producer_;
+  std::unique_ptr<rd_kafka_topic_t, rd_kafka_utils::rd_kafka_topic_deleter> topic_;
+};

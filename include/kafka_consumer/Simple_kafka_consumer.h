@@ -15,4 +15,4 @@
  * limitations under the License.
  */
 
-#include "kafka_producer/Simple_kafka_producer.h"
+#pragma once

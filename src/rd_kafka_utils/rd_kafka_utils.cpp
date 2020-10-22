@@ -15,4 +15,20 @@
  * limitations under the License.
  */
 
-#include "kafka_producer/Simple_kafka_producer.h"
+#include "rd_kafka_utils/rd_kafka_utils.h"
+
+#include <array>
+#include <exception>
+
+namespace rd_kafka_utils {
+void setKafkaConfigurationField(rd_kafka_conf_t* configuration, const std::string& field_name, const std::string& value) {
+  static std::array<char, 512U> errstr{};
+  rd_kafka_conf_res_t result;
+  result = rd_kafka_conf_set(configuration, field_name.c_str(), value.c_str(), errstr.data(), errstr.size());
+  // logger_->log_debug("Setting kafka configuration field bootstrap.servers:= %s", value);
+  if (result != RD_KAFKA_CONF_OK) {
+    const std::string error_msg { errstr.begin(), errstr.end() };
+    throw std::runtime_error("rd_kafka configuration error" + error_msg);
+  }
+}
+}  // namespace rd_kafka_utils

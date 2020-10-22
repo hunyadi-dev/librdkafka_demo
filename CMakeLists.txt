@@ -19,11 +19,6 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
    add_compile_options (-fcolor-diagnostics)
 endif ()
 
-file(GLOB_RECURSE SOURCE_FILES src/*.cpp)
-file(GLOB_RECURSE HEADER_FILES src/*.h)
-add_library(librdkafka_issue_demo_lib STATIC ${SOURCE_FILES} ${HEADER_FILES})
-target_include_directories(librdkafka_issue_demo_lib PUBLIC src/)
-
 if(WIN32)
     set(BYPRODUCT "lib/rdkafka.lib")
 else()
@@ -53,10 +48,10 @@ ExternalProject_Add(
 add_dependencies(librdkafka-external OpenSSL::SSL OpenSSL::Crypto ZLIB::ZLIB)
 
 set(LIBRDKAFKA_FOUND "YES" CACHE STRING "" FORCE)
-set(LIBRDKAFKA_INCLUDE_DIR "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/librdkafka-install/include/librdkafka" CACHE STRING "" FORCE)
+set(LIBRDKAFKA_INCLUDE_DIR "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/librdkafka-install/include" CACHE STRING "" FORCE)
 set(LIBRDKAFKA_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/thirdparty/librdkafka-install/${BYPRODUCT}" CACHE STRING "" FORCE)
 set(LIBRDKAFKA_LIBRARIES ${LIBRDKAFKA_LIBRARY} CACHE STRING "" FORCE)
-file(MAKE_DIRECTORY ${LIBRDKAFKA_INCLUDE_DIR})
+file(MAKE_DIRECTORY ${LIBRDKAFKA_INCLUDE_DIR}/librdkafka)
 
 add_library(librdkafka STATIC IMPORTED)
 set_target_properties(librdkafka PROPERTIES IMPORTED_LOCATION "${LIBRDKAFKA_LIBRARY}")
@@ -80,10 +75,14 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(Catch2)
 
+file(GLOB_RECURSE SOURCE_FILES src/*.cpp)
+file(GLOB_RECURSE HEADER_FILES src/*.h)
+add_library(librdkafka_issue_demo_lib STATIC ${SOURCE_FILES} ${HEADER_FILES})
+target_include_directories(librdkafka_issue_demo_lib PUBLIC include/ ${LIBRDKAFKA_INCLUDE_DIR})
+target_link_libraries(librdkafka_issue_demo_lib librdkafka)
+
 file(GLOB_RECURSE TEST_FILES test/*.cpp)
 add_executable(librdkafka_issue_demo ${TEST_FILES})
-# target_link_libraries(librdkafka_issue_demo librdkafka_issue_demo_lib )
 target_link_libraries(librdkafka_issue_demo librdkafka_issue_demo_lib Catch2::Catch2 librdkafka)
-# target_link_libraries(librdkafka_issue_demo librdkafka_issue_demo_lib OpenSSL::SSL)
 
 add_test(NAME Test_librdkafka COMMAND "librdkafka_issue_demo" WORKING_DIRECTORY ${TEST_DIR})
