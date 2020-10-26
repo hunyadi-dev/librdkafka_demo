@@ -48,9 +48,31 @@ Simple_kafka_producer::Simple_kafka_producer(const std::string& kafka_brokers, c
   }
 }
 
+void Simple_kafka_producer::publish_messages_to_topic(const std::vector<std::string>& messages_container, std::vector<PublishEvent> events) {
+  std::deque<std::string> messages{messages_container.begin(), messages_container.end()};
+  for (const PublishEvent event : events) {
+    switch (event) {
+      case PublishEvent::PUBLISH:
+        publish_message(messages.front());
+        messages.pop_front();
+        break;
+      case PublishEvent::TRANSACTION_START:
+        std::cerr << "Starting new transaction..." << std::endl;
+        rd_kafka_begin_transaction(producer_.get());
+        break;
+      case PublishEvent::TRANSACTION_COMMIT:
+        std::cerr << "Committing transaction..." << std::endl;
+        rd_kafka_commit_transaction(producer_.get(), TRANSACTIONS_TIMEOUT_MS.count());
+        break;
+      case PublishEvent::CANCEL:
+        std::cerr << "Cancelling transaction..." << std::endl;
+        rd_kafka_abort_transaction(producer_.get(), TRANSACTIONS_TIMEOUT_MS.count());
+    }
+  }
+}
 void Simple_kafka_producer::publish_message(const std::string& message) {
   std::cerr << "Producing: " << message.c_str() << std::endl;
-  // if (rd_kafka_produce(topic_.get(), RD_KAFKA_PARTITION_UA, RD_KAFKA_MSG_F_FREE, strdup(message.c_str()), message.size(), nullptr, 0, nullptr)) {
-    // std::cerr << "Producer failure: %d", rd_kafka_last_error() << std::endl;
-  // }
+  if (rd_kafka_produce(topic_.get(), RD_KAFKA_PARTITION_UA, RD_KAFKA_MSG_F_FREE, strdup(message.c_str()), message.size(), nullptr, 0, nullptr)) {
+    std::cerr << "Producer failure: " << rd_kafka_last_error() << ": " << rd_kafka_err2str(rd_kafka_last_error()) << std::endl;
+  }
 }

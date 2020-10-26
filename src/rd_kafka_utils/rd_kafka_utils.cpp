@@ -31,4 +31,40 @@ void setKafkaConfigurationField(rd_kafka_conf_t* configuration, const std::strin
     throw std::runtime_error("rd_kafka configuration error" + error_msg);
   }
 }
+
+void print_topics_list(rd_kafka_topic_partition_list_t* kf_topic_partition_list) {
+  for (std::size_t i = 0; i < kf_topic_partition_list->cnt; ++i) {
+    std::cerr << "kf_topic_partition_list: \u001b[33m[topic: " << kf_topic_partition_list->elems[i].topic <<
+        ", partition: " << kf_topic_partition_list->elems[i].partition <<
+        ", offset: " << kf_topic_partition_list->elems[i].offset << "]\u001b[0m" << std::endl;
+  }
+}
+
+void print_kafka_message(const rd_kafka_message_t* rkmessage) {
+  if (rkmessage->err != RD_KAFKA_RESP_ERR_NO_ERROR) {
+      throw std::runtime_error("Received error message from broker.");
+  }
+  std::string topicName = rd_kafka_topic_name(rkmessage->rkt);
+  std::string message(reinterpret_cast<char*>(rkmessage->payload), rkmessage->len);
+  char* key = reinterpret_cast<char*>(rkmessage->key);
+  rd_kafka_timestamp_type_t tstype;
+  int64_t timestamp;
+  rd_kafka_headers_t *hdrs;
+  timestamp = rd_kafka_message_timestamp(rkmessage, &tstype);
+  const char *tsname = "?";
+  if (tstype != RD_KAFKA_TIMESTAMP_NOT_AVAILABLE) {
+    if (tstype == RD_KAFKA_TIMESTAMP_CREATE_TIME) {
+      tsname = "create time";
+    } else if (tstype == RD_KAFKA_TIMESTAMP_LOG_APPEND_TIME) {
+      tsname = "log append time";
+    }
+  }
+
+  std::cerr << "Message: \u001b[33m" << message.c_str() << "\u001b[0m" << std::endl;
+  std::cerr << "Topic: " << topicName.c_str() <<
+      ", \u001b[32mOffset: " << rkmessage->offset <<
+      ", (" << rkmessage->len << " bytes)\n" <<
+      "Message timestamp: " << timestamp <<
+      " \u001b[33m(" << (!timestamp ? 0 : static_cast<int>(time(NULL)) - static_cast<int>((timestamp / 1000))) << "s ago)\u001b[0m" << std::endl;
+}
 }  // namespace rd_kafka_utils

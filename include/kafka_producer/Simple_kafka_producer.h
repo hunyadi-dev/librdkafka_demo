@@ -20,7 +20,9 @@
 #include <chrono>
 #include <iostream>
 #include <memory>
+#include <deque>
 #include <string>
+#include <vector>
 
 #include "rd_kafka_utils/rd_kafka_utils.h"
 
@@ -28,10 +30,16 @@ class Simple_kafka_producer {
  public:
   static const std::string CANCEL_MESSAGE;
 
+  enum class PublishEvent {
+    PUBLISH,
+    TRANSACTION_START,
+    TRANSACTION_COMMIT,
+    CANCEL
+  };
+
   explicit Simple_kafka_producer(const std::string& kafka_brokers, const std::string& topic, const bool transactional);
 
-  void publish_messages_to_topic(const std::vector<std::string>& messages_on_topic) {
-  }
+  void publish_messages_to_topic(const std::vector<std::string>& messages_container, std::vector<PublishEvent> events);
 
  private:
   static const std::chrono::milliseconds TRANSACTIONS_TIMEOUT_MS;

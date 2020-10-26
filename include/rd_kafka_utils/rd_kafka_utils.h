@@ -65,5 +65,7 @@ struct rd_kafka_topic_deleter {
 };
 
 void setKafkaConfigurationField(rd_kafka_conf_t* configuration, const std::string& field_name, const std::string& value);
+void print_kafka_message(const rd_kafka_message_t* rkmessage);
+void print_topics_list(rd_kafka_topic_partition_list_t* kf_topic_partition_list);
 
 }  // namespace rd_kafka_utils
