@@ -39,7 +39,7 @@ class Simple_kafka_producer {
 
   explicit Simple_kafka_producer(const std::string& kafka_brokers, const std::string& topic, const bool transactional);
 
-  void publish_messages_to_topic(const std::vector<std::string>& messages_container, std::vector<PublishEvent> events);
+  void publish_messages_to_topic(const std::vector<std::string>& messages_container, const std::vector<PublishEvent>& events);
 
  private:
   static const std::chrono::milliseconds TRANSACTIONS_TIMEOUT_MS;

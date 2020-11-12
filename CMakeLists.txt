@@ -31,6 +31,7 @@ ExternalProject_Add(
   URL_HASH "SHA256=f7fee59fdbf1286ec23ef0b35b2dfb41031c8727c90ced6435b8cf576f23a656"
   CMAKE_ARGS ${PASSTHROUGH_CMAKE_ARGS}
     "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/thirdparty/librdkafka-install"
+    "-DCMAKE_BUILD_TYPE=Debug"
     "-DWITH_SSL=ON"
     "-DWITH_SASL=OFF"
     "-DRDKAFKA_BUILD_STATIC=ON"
@@ -79,7 +80,7 @@ file(GLOB_RECURSE SOURCE_FILES src/*.cpp)
 file(GLOB_RECURSE HEADER_FILES src/*.h)
 add_library(librdkafka_issue_demo_lib STATIC ${SOURCE_FILES} ${HEADER_FILES})
 target_include_directories(librdkafka_issue_demo_lib PUBLIC include/ ${LIBRDKAFKA_INCLUDE_DIR})
-target_link_libraries(librdkafka_issue_demo_lib librdkafka)
+target_link_libraries(librdkafka_issue_demo_lib debug librdkafka)
 
 file(GLOB_RECURSE TEST_FILES test/*.cpp)
 add_executable(librdkafka_issue_demo ${TEST_FILES})

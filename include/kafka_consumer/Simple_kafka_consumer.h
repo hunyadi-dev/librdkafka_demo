@@ -31,9 +31,9 @@ class Simple_kafka_consumer {
       const std::string& kafka_brokers, const std::vector<std::string>& topic_list, const std::string& topic_name_format, const std::string& group_id, const bool transactional);
 
   void createTopicPartitionList(const std::vector<std::string>& topic_list, const std::string& topic_name_format);
+  std::vector<std::string> poll_messages(const std::size_t max_poll_records);
 
  private:
-  static const std::size_t BATCH_NUM_MESSAGES;
   static const int COMMUNICATIONS_TIMEOUT_MS;
 
   std::unique_ptr<rd_kafka_t, rd_kafka_utils::rd_kafka_consumer_deleter> consumer_;
